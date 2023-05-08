@@ -7,8 +7,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,4 +42,32 @@ public class TurmaController {
         return ResponseEntity.ok(listTurmas);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Turma> getById(@PathVariable Long id) {
+        var turma = iTurmaService.getById(id);
+        return turma.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+    }
+
+
+    @PostMapping
+    public ResponseEntity<Turma> saveTurma(@RequestBody Turma turma) {
+        return new ResponseEntity<>(iTurmaService.saveTurma(turma), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Turma> updateTurma(@PathVariable Long id, @RequestBody Turma turma) {
+        Turma turmaAtualizada = iTurmaService.updateTurma(id, turma);
+        if(turmaAtualizada != null)
+            return new ResponseEntity<>(turmaAtualizada, HttpStatus.OK);
+        else
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> deleteTurma(@PathVariable Long id) {
+        if(iTurmaService.deleteTurma(id))
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        else
+            return new ResponseEntity<>(false, HttpStatus.OK);
+    }
 }
